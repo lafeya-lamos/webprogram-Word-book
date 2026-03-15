@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>单词列表</title>
+</head>
+<body>
+    <h1>所有单词</h1>
+    {% if articles %}
+        <ul>
+        {% for article in articles %}
+            <li>
+                <h2>{{ article.title }}</h2>
+                <p>{{ article.content }}</p>
+                <small>添加日期：{{ article.pub_date }}</small>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>暂无单词。</p>
+    {% endif %}
+</body>
+</html>
