@@ -10,5 +10,26 @@
         {{ form.as_p }}
         <button type="submit">提交</button>
     </form>
+
+    <hr>
+
+    <h2>已有单词列表</h2>
+    {% if articles %}
+        <ul>
+        {% for article in articles %}
+            <li>
+                <strong>{{ article.title }}</strong>
+                <form method="post" action="{% url 'delete_article' article.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('确定要删除“{{ article.title }}”吗？');">删除</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>暂无单词。</p>
+    {% endif %}
+
+    <p><a href="{% url 'article_list' %}">查看所有单词（列表视图）</a></p>
 </body>
 </html>
