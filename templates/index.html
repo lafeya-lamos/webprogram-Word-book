@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>我的 Django 页面</title>
+</head>
+<body>
+    <h1>Hello, Django!</h1>
+    <p>{{ message }}</p>
+    <nav style="margin-top: 20px;">
+    <a href="{% url 'article_list' %}" style="margin-right: 15px;">📖 单词列表</a>
+    <a href="{% url 'add_article' %}">✏️ 添加单词</a>
+    </nav>
+</body>
+</html>
