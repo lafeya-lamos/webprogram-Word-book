@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>单词列表</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Список слов{% endblock %}
+
+{% block content %}
     <h1>所有单词</h1>
     {% if articles %}
         <ul>
@@ -13,11 +11,14 @@
                 <h2>{{ article.title }}</h2>
                 <p>{{ article.content }}</p>
                 <small>添加日期：{{ article.pub_date }}</small>
+                <form method="post" action="{% url 'delete_article' article.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('确定要删除“{{ article.title }}”吗？');">删除</button>
+                </form>
             </li>
         {% endfor %}
         </ul>
     {% else %}
         <p>暂无单词。</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}
