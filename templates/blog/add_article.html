@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>添加单词</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Добавить слово{% endblock %}
+
+{% block content %}
     <h1>添加新单词</h1>
     <form method="post">
         {% csrf_token %}
@@ -29,6 +28,7 @@
     {% else %}
         <p>暂无单词。</p>
     {% endif %}
+{% endblock %}
 
     <p><a href="{% url 'article_list' %}">查看所有单词（列表视图）</a></p>
 </body>
