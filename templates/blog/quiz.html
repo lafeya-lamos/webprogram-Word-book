@@ -5,6 +5,14 @@
 {% block content %}
     <h1>单词测试</h1>
 
+    <!-- 数量选择表单始终显示 -->
+    <form method="get" action="{% url 'quiz' %}" style="margin-bottom: 20px;">
+        <label for="num_questions">题目数量：</label>
+        <input type="number" name="num_questions" id="num_questions" min="1" max="20" value="{{ num_questions|default:5 }}">
+        <button type="submit">开始测试</button>
+    </form>
+
+
     {% if error %}
         <div style="color: red; font-weight: bold; margin-bottom: 20px;">
             {{ error }}
@@ -14,6 +22,7 @@
     {% if not submitted and questions %}
         <form method="post">
             {% csrf_token %}
+            <input type="hidden" name="total_questions" value="{{ questions|length }}">
 
             {% for q in questions %}
                 <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:8px;">
