@@ -29,23 +29,22 @@ def delete_article(request, article_id):
     # 如果不是 POST，重定向到文章列表
     return redirect('article_list')
 
-def generate_quiz_questions():
+def generate_quiz_questions(num_questions=5):
     # 按录入顺序排序（最早录入在前）
     all_words = list(Article.objects.all().order_by('pub_date', 'id'))
 
-    # 单词不足报错
-    if len(all_words) < 5:
-        return None, "词库数量不足，至少需要 5 个单词才能生成测试。"
+    if len(all_words) < num_questions:
+        return None, f"词库数量不足，至少需要 {num_questions} 个单词才能生成测试。当前只有 {len(all_words)} 个。"
 
-    # 从全部单词中随机抽 5 个作为题目
-    selected_words = random.sample(all_words, 5)
+    # 从全部单词中随机抽 num_questions 个作为题目
+    selected_words = random.sample(all_words, num_questions)
 
     questions = []
 
     for q_index, word in enumerate(selected_words, start=1):
         current_index = all_words.index(word)
         correct_meaning = word.content
-
+        
         # 1) 邻近错误选项（±2）
         neighbor_candidates = [
             all_words[j]
@@ -53,11 +52,11 @@ def generate_quiz_questions():
             if j != current_index and all_words[j].content != correct_meaning
         ]
 
-        # 如果 ±2 范围内刚好没有可用错误项（极端）
+        # 如果 ±2 范围内刚好没有可用错误项（极端兜底）
         if neighbor_candidates:
             nearby_wrong = random.choice(neighbor_candidates)
         else:
-            # 从其他单词中补一个
+            # 兜底：从其他单词中补一个
             fallback_candidates = [
                 w for w in all_words
                 if w.id != word.id and w.content != correct_meaning
@@ -124,21 +123,24 @@ def generate_quiz_questions():
 
 
 def quiz_view(request):
-    """
-    测试页面：
-    - GET：生成 5 道题
-    - POST：提交答案并显示结果
-    """
     if request.method == 'POST':
+        total = request.POST.get('total_questions')
+        try:
+            total = int(total)
+            if total < 1 or total > 20:
+                return redirect('quiz')  # 无效数量则重定向到测试页
+        except (TypeError, ValueError):
+            return redirect('quiz')
+
         questions = []
         score = 0
 
-        for i in range(1, 6):
+        for i in range(1, total+1):
             word = request.POST.get(f'word_{i}')
             correct_answer = request.POST.get(f'correct_{i}')
             selected_answer = request.POST.get(f'question_{i}')
 
-            is_correct = selected_answer == correct_answer
+            is_correct = (selected_answer == correct_answer) if selected_answer else False
             if is_correct:
                 score += 1
 
@@ -155,17 +157,43 @@ def quiz_view(request):
             'submitted': True,
             'questions': questions,
             'score': score,
-            'total': 5,
+            'total': total,
         })
 
-    # GET 请求：生成新题目
-    questions, error = generate_quiz_questions()
+     # GET 请求：生成题目
+    num_questions_str = request.GET.get('num_questions', '')
+    input_error = None
+    num_questions = None
 
-    return render(request, 'blog/quiz.html', {
-        'submitted': False,
-        'questions': questions,
-        'error': error,
-    })
+    if num_questions_str == '':
+        # 首次加载，没有提供数量，默认使用5
+        num_questions = 5
+    else:
+        try:
+            num_questions = int(num_questions_str)
+            if num_questions < 1 or num_questions > 20:
+                input_error = "题目数量必须是 1 到 20 之间的整数。"
+                num_questions = None
+        except ValueError:
+            input_error = "题目数量必须是数字。"
+            num_questions = None
+
+    if input_error:
+        # 有错误，直接渲染模板，不生成题目
+        return render(request, 'blog/quiz.html', {
+            'submitted': False,
+            'error': input_error,
+            'num_questions': num_questions_str,   # 保留原始输入，但因 input 类型为 number，非数字无法显示，用户需重新输入
+        })
+    else:
+        # 验证通过，生成题目
+        questions, error = generate_quiz_questions(num_questions)
+        return render(request, 'blog/quiz.html', {
+            'submitted': False,
+            'questions': questions,
+            'error': error,
+            'num_questions': num_questions,
+        })
 
 # Create your views here.
 
