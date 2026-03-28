@@ -128,14 +128,14 @@ def quiz_view(request):
         try:
             total = int(total)
             if total < 1 or total > 20:
-                return redirect('quiz')  # 无效数量则重定向到测试页
+                return redirect('quiz')
         except (TypeError, ValueError):
             return redirect('quiz')
 
         questions = []
         score = 0
 
-        for i in range(1, total+1):
+        for i in range(1, total + 1):
             word = request.POST.get(f'word_{i}')
             correct_answer = request.POST.get(f'correct_{i}')
             selected_answer = request.POST.get(f'question_{i}')
@@ -160,40 +160,40 @@ def quiz_view(request):
             'total': total,
         })
 
-     # GET 请求：生成题目
-    num_questions_str = request.GET.get('num_questions', '')
+    # GET 请求
+    num_questions_str = request.GET.get('num_questions')
+
+    # 首次进入页面，没有 num_questions 参数，只显示数量选择表单，不生成题目
+    if num_questions_str is None:
+        return render(request, 'blog/quiz.html', {
+            'submitted': False,
+            'questions': None,   # 没有题目
+            'num_questions': 5,  # 默认值用于表单显示
+        })
+
+    # 有 num_questions 参数，进行验证
     input_error = None
     num_questions = None
+    questions = None
 
-    if num_questions_str == '':
-        # 首次加载，没有提供数量，默认使用5
-        num_questions = 5
-    else:
-        try:
-            num_questions = int(num_questions_str)
-            if num_questions < 1 or num_questions > 20:
-                input_error = "题目数量必须是 1 到 20 之间的整数。"
-                num_questions = None
-        except ValueError:
-            input_error = "题目数量必须是数字。"
-            num_questions = None
+    try:
+        num_questions = int(num_questions_str)
+        if num_questions < 1 or num_questions > 20:
+            input_error = "题目数量必须是 1 到 20 之间的整数。"
+        else:
+            questions, error = generate_quiz_questions(num_questions)
+            if error:
+                input_error = error
+                questions = None
+    except ValueError:
+        input_error = "题目数量必须是数字。"
 
-    if input_error:
-        # 有错误，直接渲染模板，不生成题目
-        return render(request, 'blog/quiz.html', {
-            'submitted': False,
-            'error': input_error,
-            'num_questions': num_questions_str,   # 保留原始输入，但因 input 类型为 number，非数字无法显示，用户需重新输入
-        })
-    else:
-        # 验证通过，生成题目
-        questions, error = generate_quiz_questions(num_questions)
-        return render(request, 'blog/quiz.html', {
-            'submitted': False,
-            'questions': questions,
-            'error': error,
-            'num_questions': num_questions,
-        })
+    return render(request, 'blog/quiz.html', {
+        'submitted': False,
+        'questions': questions,
+        'error': input_error,
+        'num_questions': num_questions if num_questions is not None else 5,
+    })
 
 # Create your views here.
 
