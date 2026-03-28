@@ -29,15 +29,21 @@ def delete_article(request, article_id):
     # 如果不是 POST，重定向到文章列表
     return redirect('article_list')
 
-def generate_quiz_questions(num_questions=5):
+def generate_quiz_questions(num_questions=5, mode='random'):
     # 按录入顺序排序（最早录入在前）
     all_words = list(Article.objects.all().order_by('pub_date', 'id'))
 
     if len(all_words) < num_questions:
         return None, f"词库数量不足，至少需要 {num_questions} 个单词才能生成测试。当前只有 {len(all_words)} 个。"
 
-    # 从全部单词中随机抽 num_questions 个作为题目
-    selected_words = random.sample(all_words, num_questions)
+    # 根据模式选择单词
+    if mode == 'random':
+        selected_words = random.sample(all_words, num_questions)
+    elif mode == 'review':
+        # 取最后 num_questions 个（即最近录入的）
+        selected_words = all_words[-num_questions:]
+    else:
+        selected_words = random.sample(all_words, num_questions)  # 默认随机
 
     questions = []
 
@@ -162,6 +168,7 @@ def quiz_view(request):
 
     # GET 请求
     num_questions_str = request.GET.get('num_questions')
+    mode = request.GET.get('mode', 'random')  # 默认为随机模式
 
     # 首次进入页面，没有 num_questions 参数，只显示数量选择表单，不生成题目
     if num_questions_str is None:
@@ -169,6 +176,7 @@ def quiz_view(request):
             'submitted': False,
             'questions': None,   # 没有题目
             'num_questions': 5,  # 默认值用于表单显示
+            'mode': mode,  # 传递当前模式
         })
 
     # 有 num_questions 参数，进行验证
@@ -193,6 +201,7 @@ def quiz_view(request):
         'questions': questions,
         'error': input_error,
         'num_questions': num_questions if num_questions is not None else 5,
+        'mode': mode,  # 保留模式，用于错误后或生成后显示
     })
 
 # Create your views here.
