@@ -9,6 +9,17 @@
     <form method="get" action="{% url 'quiz' %}" style="margin-bottom: 20px;">
         <label for="num_questions">题目数量：</label>
         <input type="number" name="num_questions" id="num_questions" min="1" max="20" value="{{ num_questions|default:5 }}">
+        
+        <div style="margin: 10px 0;">
+            <label>测试模式：</label>
+            <label>
+                <input type="radio" name="mode" value="random" {% if mode == 'random' %}checked{% endif %}> 随机模式
+            </label>
+            <label>
+                <input type="radio" name="mode" value="review" {% if mode == 'review' %}checked{% endif %}> 复习模式
+            </label>
+        </div>
+
         <button type="submit">开始测试</button>
     </form>
 
@@ -20,6 +31,11 @@
     {% endif %}
 
     {% if not submitted and questions %}
+        <p>
+            <strong>当前模式：</strong>
+            {% if mode == 'random' %}随机模式{% else %}复习模式{% endif %}
+        </p>
+
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="total_questions" value="{{ questions|length }}">
