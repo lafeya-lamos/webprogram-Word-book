@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
-from blog import views  
+from blog import views
+from mysite import views as mysite_views 
 
 urlpatterns = [
     path('', mysite_views.index, name='index'),
