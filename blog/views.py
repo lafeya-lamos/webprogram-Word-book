@@ -8,7 +8,7 @@ def add_article(request):
         form = ArticleForm(request.POST)
         if form.is_valid():
             form.save() 
-            return redirect('article_list')
+            return redirect('add_article')
     else:
         form = ArticleForm()
     articles = Article.objects.all().order_by('-pub_date')
