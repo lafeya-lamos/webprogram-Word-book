@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404 
 from .forms import ArticleForm
-from .models import Article
+from .models import Article, WrongWordRecord
 import random
 
 def add_article(request):
@@ -11,8 +11,26 @@ def add_article(request):
             return redirect('add_article')
     else:
         form = ArticleForm()
-    articles = Article.objects.all().order_by('-pub_date')
-    return render(request, 'blog/add_article.html', {'form': form, 'articles': articles})
+    # 取最近答错记录（按时间倒序）
+    recent_wrong_records = WrongWordRecord.objects.select_related('word').order_by('-wrong_time')
+
+    # 去重后取最近 5 个单词
+    recent_wrong_words = []
+    seen_word_ids = set()
+
+    for record in recent_wrong_records:
+        if record.word.id not in seen_word_ids:
+            recent_wrong_words.append(record.word)
+            seen_word_ids.add(record.word.id)
+
+        if len(recent_wrong_words) >= 5:
+            break
+
+    return render(request, 'blog/add_article.html', {
+        'form': form,
+        'recent_wrong_words': recent_wrong_words
+    })
+
 
 def article_list(request):
     articles = Article.objects.all().order_by('-pub_date')  # 查询所有文章
@@ -149,6 +167,11 @@ def quiz_view(request):
             is_correct = (selected_answer == correct_answer) if selected_answer else False
             if is_correct:
                 score += 1
+            else:
+                 # 记录错题（包括未作答）
+                wrong_article = Article.objects.filter(title=word).first()
+                if wrong_article:
+                    WrongWordRecord.objects.create(word=wrong_article)
 
             questions.append({
                 "question_no": i,
