@@ -7,4 +7,12 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+class WrongWordRecord(models.Model):
+    word = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='wrong_records')
+    wrong_time = models.DateTimeField(auto_now_add=True, verbose_name='答错时间')
+
+    def __str__(self):
+        return f"{self.word.title} - {self.wrong_time}"
+
 # Create your models here.
