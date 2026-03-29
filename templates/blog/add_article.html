@@ -12,24 +12,18 @@
 
     <hr>
 
-    <h2>已有单词列表</h2>
-    {% if articles %}
+    <h2>最近测试错误单词</h2>
+    {% if recent_wrong_words %}
         <ul>
-        {% for article in articles %}
+        {% for article in recent_wrong_words %}
             <li>
                 <strong>{{ article.title }}</strong>
-                <form method="post" action="{% url 'delete_article' article.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" onclick="return confirm('确定要删除“{{ article.title }}”吗？');">删除</button>
-                </form>
+                <span> - {{ article.content }}</span>
             </li>
         {% endfor %}
         </ul>
     {% else %}
-        <p>暂无单词。</p>
+        <p>暂无最近错误单词。</p>
     {% endif %}
 {% endblock %}
 
-    <p><a href="{% url 'article_list' %}">查看所有单词（列表视图）</a></p>
-</body>
-</html>
