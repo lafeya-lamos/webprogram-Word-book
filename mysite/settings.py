@@ -73,8 +73,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'zh-hans'  # 使用中文
-TIME_ZONE = 'Asia/Shanghai'
+LANGUAGE_CODE = 'ru'  
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
