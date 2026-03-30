@@ -1,0 +1,502 @@
+/* ===== 全局 ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(135deg, #f4f7fb, #eef2f8);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #1f2937;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== 顶部导航 ===== */
+.site-header {
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.logo a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: #d1d5db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.25s ease;
+    padding: 8px 12px;
+    border-radius: 10px;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== 页面主体 ===== */
+.page-wrapper {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 0 20px 40px;
+}
+
+/* ===== 页脚 ===== */
+.site-footer {
+    text-align: center;
+    padding: 20px;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+/* ===== 通用卡片 ===== */
+.card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    margin-bottom: 24px;
+}
+
+.hero-card {
+    text-align: center;
+    padding: 42px 28px;
+}
+
+.hero-title {
+    font-size: 2.2rem;
+    margin-bottom: 16px;
+    color: #111827;
+}
+
+.hero-subtitle {
+    font-size: 1.08rem;
+    color: #4b5563;
+    margin-bottom: 10px;
+    line-height: 1.7;
+}
+
+/* ===== 标题 ===== */
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #111827;
+}
+
+.page-subtitle {
+    color: #6b7280;
+    margin-bottom: 24px;
+    line-height: 1.7;
+}
+
+/* ===== 按钮 ===== */
+.btn,
+button {
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: white;
+    box-shadow: 0 8px 18px rgba(22, 163, 74, 0.22);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 8px 18px rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+.btn-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 26px;
+}
+
+.btn-link {
+    text-decoration: none;
+}
+
+/* ===== 表单 ===== */
+.form-card {
+    max-width: 720px;
+    margin: 0 auto 30px;
+}
+
+form p {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    background: #f9fafb;
+    font-size: 1rem;
+    transition: 0.25s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.helptext {
+    display: block;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.errorlist {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    color: #b91c1c;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.error-box {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+/* ===== 列表 / 单词卡 ===== */
+.word-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 22px;
+}
+
+.word-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+    transition: 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.word-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
+}
+
+.word-title {
+    font-size: 1.35rem;
+    color: #111827;
+}
+
+.word-content {
+    color: #374151;
+    line-height: 1.7;
+}
+
+.word-date {
+    color: #6b7280;
+    font-size: 0.92rem;
+}
+
+.inline-form {
+    display: inline;
+}
+
+/* ===== 统计信息 ===== */
+.stats-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.stat-box {
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 18px 22px;
+    min-width: 220px;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* ===== quiz ===== */
+.quiz-config {
+    max-width: 760px;
+    margin: 0 auto 24px;
+}
+
+.radio-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.radio-option {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.question-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+}
+
+.question-title {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    color: #111827;
+}
+
+.option-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    transition: 0.2s ease;
+}
+
+.option-item:hover {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.result-correct {
+    color: #15803d;
+    font-weight: 700;
+}
+
+.result-wrong {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.result-warning {
+    color: #d97706;
+    font-weight: 700;
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+    text-align: center;
+    color: #6b7280;
+    padding: 40px 20px;
+    font-size: 1.05rem;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .page-title {
+        font-size: 1.65rem;
+    }
+
+    .card,
+    .question-card,
+    .word-card {
+        padding: 20px;
+    }
+
+    .nav-container {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .btn-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-link,
+    .btn,
+    button {
+        width: 100%;
+        text-align: center;
+    }
+}
+/* ===== 页面头部 ===== */
+.page-header {
+    margin-bottom: 28px;
+}
+
+/* ===== 双栏布局（添加 + 错题复习） ===== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.form-card-wide {
+    padding: 30px;
+}
+
+.review-card {
+    padding: 30px;
+    background: linear-gradient(180deg, #ffffff, #f9fbff);
+}
+
+.section-title {
+    font-size: 1.45rem;
+    color: #111827;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    color: #6b7280;
+    line-height: 1.7;
+    margin-bottom: 22px;
+}
+
+/* ===== 错题单词列表 ===== */
+.wrong-word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.wrong-word-item {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-left: 5px solid #f59e0b;
+    border-radius: 16px;
+    padding: 18px 18px 16px;
+    transition: 0.2s ease;
+}
+
+.wrong-word-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    background: #fffdf7;
+}
+
+.wrong-word-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ===== 响应式：手机改成上下布局 ===== */
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
