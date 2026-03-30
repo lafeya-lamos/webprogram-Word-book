@@ -1,53 +1,48 @@
-{% extends "base.html" %}
+{{% extends "base.html" %}
 
 {% block title %}Главная страница{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto; text-align: center; padding: 40px 20px;">
+<div class="card hero-card">
+    <h1 class="hero-title">{{ welcome_title }}</h1>
+    <p class="hero-subtitle">
+        Это учебное веб-приложение помогает добавлять новые слова,
+        хранить их в словаре и проверять знания с помощью тестов.
+    </p>
+    <p class="hero-subtitle">
+        <strong>Сегодня:</strong> {{ current_datetime }}
+    </p>
+    <p class="hero-subtitle">
+        <strong>Последнее добавленное слово:</strong> {{ last_added_text }}
+    </p>
 
-    <div style="background: linear-gradient(135deg, #f5f7fa, #e4ecf7); padding: 40px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
-        <h1 style="font-size: 2.5rem; margin-bottom: 15px;">{{ welcome_title }}</h1>
+    <div class="btn-row">
+        <a class="btn-link" href="{% url 'quiz' %}?num_questions=5&mode=random">
+            <button class="btn btn-success">🎯 Быстрый тест</button>
+        </a>
 
-        <p style="font-size: 1.2rem; color: #444; margin-bottom: 10px;">
-            <strong>Сегодня:</strong> {{ current_datetime }}
-        </p>
+        <a class="btn-link" href="{% url 'quiz' %}?num_questions=5&mode=review">
+            <button class="btn btn-primary">🔁 Быстрое повторение</button>
+        </a>
 
-        <p style="font-size: 1.1rem; color: #666; margin-bottom: 30px;">
-            <strong>Последнее слово добавлено:</strong> {{ last_added_text }}
-        </p>
-
-        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="{% url 'quiz' %}?num_questions=5&mode=random" style="text-decoration: none;">
-                <button style="
-                    padding: 14px 28px;
-                    font-size: 1rem;
-                    border: none;
-                    border-radius: 12px;
-                    background-color: #4CAF50;
-                    color: white;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                ">
-                    Быстрый тест
-                </button>
-            </a>
-
-            <a href="{% url 'quiz' %}?num_questions=5&mode=review" style="text-decoration: none;">
-                <button style="
-                    padding: 14px 28px;
-                    font-size: 1rem;
-                    border: none;
-                    border-radius: 12px;
-                    background-color: #2196F3;
-                    color: white;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                ">
-                    Быстрое повторение
-                </button>
-            </a>
-        </div>
+        <a class="btn-link" href="{% url 'add_article' %}">
+            <button class="btn btn-secondary">➕ Добавить новое слово</button>
+        </a>
     </div>
+</div>
 
+<div class="stats-row">
+    <div class="stat-box">
+        <div class="stat-label">Функция 1</div>
+        <div class="stat-value">Добавление слов</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-label">Функция 2</div>
+        <div class="stat-value">Автотестирование</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-label">Функция 3</div>
+        <div class="stat-value">Режим повторения</div>
+    </div>
 </div>
 {% endblock %}
