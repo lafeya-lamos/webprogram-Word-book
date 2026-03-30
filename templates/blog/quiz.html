@@ -1,55 +1,71 @@
 {% extends "base.html" %}
 
-{% block title %}单词测试{% endblock %}
+{% block title %}Тест по словам{% endblock %}
 
 {% block content %}
-    <h1>单词测试</h1>
+<div class="card quiz-config">
+    <h1 class="page-title">Тест по словам</h1>
+    <p class="page-subtitle">
+        Выберите количество вопросов и режим тестирования, затем начните проверку знаний.
+    </p>
 
-    <!-- 数量选择表单始终显示 -->
-    <form method="get" action="{% url 'quiz' %}" style="margin-bottom: 20px;">
-        <label for="num_questions">题目数量：</label>
-        <input type="number" name="num_questions" id="num_questions" min="1" max="20" value="{{ num_questions|default:5 }}">
-        
-        <div style="margin: 10px 0;">
-            <label>测试模式：</label>
-            <label>
-                <input type="radio" name="mode" value="random" {% if mode == 'random' %}checked{% endif %}> 随机模式
-            </label>
-            <label>
-                <input type="radio" name="mode" value="review" {% if mode == 'review' %}checked{% endif %}> 复习模式
-            </label>
-        </div>
-
-        <button type="submit">开始测试</button>
-    </form>
-
-
-    {% if error %}
-        <div style="color: red; font-weight: bold; margin-bottom: 20px;">
-            {{ error }}
-        </div>
-    {% endif %}
-
-    {% if not submitted and questions %}
+    <form method="get" action="{% url 'quiz' %}" novalidate>
         <p>
-            <strong>当前模式：</strong>
-            {% if mode == 'random' %}随机模式{% else %}复习模式{% endif %}
+            <label for="num_questions">Количество вопросов</label>
+            <input type="number" name="num_questions" id="num_questions" min="1" max="20"
+                   value="{{ num_questions|default:5 }}">
         </p>
 
-        <form method="post">
+        <div style="margin: 18px 0;">
+            <label>Режим теста</label>
+            <div class="radio-row">
+                <label class="radio-option">
+                    <input type="radio" name="mode" value="random" {% if mode == 'random' %}checked{% endif %}>
+                    Случайный режим
+                </label>
+
+                <label class="radio-option">
+                    <input type="radio" name="mode" value="review" {% if mode == 'review' %}checked{% endif %}>
+                    Режим повторения
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Начать тест</button>
+    </form>
+</div>
+
+{% if error %}
+    <div class="error-box quiz-config">
+        {{ error }}
+    </div>
+{% endif %}
+
+{% if not submitted and questions %}
+    <div class="card quiz-config">
+        <p class="page-subtitle">
+            <strong>Текущий режим:</strong>
+            {% if mode == 'random' %}
+                Случайный выбор слов из словаря
+            {% else %}
+                Повторение недавно добавленных слов
+            {% endif %}
+        </p>
+
+        <form method="post" novalidate>
             {% csrf_token %}
             <input type="hidden" name="total_questions" value="{{ questions|length }}">
 
             {% for q in questions %}
-                <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:8px;">
-                    <h3>第 {{ q.question_no }} 题：{{ q.word }}</h3>
+                <div class="question-card">
+                    <h3 class="question-title">Вопрос {{ q.question_no }}: {{ q.word }}</h3>
 
                     <input type="hidden" name="word_{{ q.question_no }}" value="{{ q.word }}">
                     <input type="hidden" name="correct_{{ q.question_no }}" value="{{ q.correct_answer }}">
 
                     {% for option in q.options %}
-                        <div style="margin: 8px 0;">
-                            <label>
+                        <div class="option-item">
+                            <label style="margin: 0;">
                                 <input type="radio" name="question_{{ q.question_no }}" value="{{ option.text }}">
                                 {{ option.text }}
                             </label>
@@ -58,35 +74,41 @@
                 </div>
             {% endfor %}
 
-            <button type="submit" style="padding:10px 20px;">提交答案</button>
+            <button type="submit" class="btn btn-success">Отправить ответы</button>
         </form>
-    {% endif %}
+    </div>
+{% endif %}
 
-    {% if submitted %}
-        <h2>测试结果：{{ score }} / {{ total }}</h2>
+{% if submitted %}
+    <div class="card quiz-config">
+        <h2 class="page-title" style="font-size: 1.8rem;">Результат: {{ score }} / {{ total }}</h2>
+        <p class="page-subtitle">Ниже вы можете посмотреть разбор каждого ответа.</p>
+    </div>
 
-        {% for q in questions %}
-            <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:8px;">
-                <h3>第 {{ q.question_no }} 题：{{ q.word }}</h3>
+    {% for q in questions %}
+        <div class="question-card quiz-config">
+            <h3 class="question-title">Вопрос {{ q.question_no }}: {{ q.word }}</h3>
 
-                {% if q.answered %}
-                    <p><strong>你的答案：</strong> {{ q.selected_answer }}</p>
-                {% else %}
-                    <p><strong>你的答案：</strong> <span style="color: orange;">未作答</span></p>
-                {% endif %}
+            {% if q.answered %}
+                <p><strong>Ваш ответ:</strong> {{ q.selected_answer }}</p>
+            {% else %}
+                <p><strong>Ваш ответ:</strong> <span class="result-warning">Нет ответа</span></p>
+            {% endif %}
 
-                <p><strong>正确答案：</strong> {{ q.correct_answer }}</p>
+            <p><strong>Правильный ответ:</strong> {{ q.correct_answer }}</p>
 
-                {% if q.is_correct %}
-                    <p style="color: green; font-weight: bold;">✔ 正确</p>
-                {% else %}
-                    <p style="color: red; font-weight: bold;">✘ 错误</p>
-                {% endif %}
-            </div>
-        {% endfor %}
+            {% if q.is_correct %}
+                <p class="result-correct">✔ Правильно</p>
+            {% else %}
+                <p class="result-wrong">✘ Неправильно</p>
+            {% endif %}
+        </div>
+    {% endfor %}
 
-        <a href="{% url 'quiz' %}">
-            <button style="padding:10px 20px;">再来一组新题</button>
+    <div class="quiz-config" style="text-align: center;">
+        <a href="{% url 'quiz' %}" class="btn-link">
+            <button class="btn btn-primary">Пройти новый тест</button>
         </a>
-    {% endif %}
+    </div>
+{% endif %}
 {% endblock %}
