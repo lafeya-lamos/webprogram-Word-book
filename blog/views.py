@@ -50,6 +50,23 @@ def delete_article(request, article_id):
     # 如果不是 POST，重定向到文章列表
     return redirect('article_list')
 
+def edit_article(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            return redirect('article_list')
+    else:
+        form = ArticleForm(instance=article)
+
+    return render(request, 'blog/edit_article.html', {
+        'form': form,
+        'article': article,
+    })
+
+
 def generate_quiz_questions(num_questions=5, mode='random'):
     """
     生成 5 道测试题
