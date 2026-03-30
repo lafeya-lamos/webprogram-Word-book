@@ -3,27 +3,52 @@
 {% block title %}Добавить слово{% endblock %}
 
 {% block content %}
-    <h1>添加新单词</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">提交</button>
-    </form>
+<div class="page-header">
+    <h1 class="page-title">Добавление слов и повторение ошибок</h1>
+    <p class="page-subtitle">
+        Здесь вы можете добавить новое слово в словарь и повторить слова,
+        в которых были ошибки во время последних тестов.
+    </p>
+</div>
 
-    <hr>
+<div class="dashboard-grid">
+    <!-- 左侧：添加单词 -->
+    <div class="card form-card-wide">
+        <h2 class="section-title">➕ Добавить новое слово</h2>
+        <p class="section-subtitle">
+            Введите новое слово и его значение, чтобы сохранить его в словарь.
+        </p>
 
-    <h2>最近测试错误单词</h2>
-    {% if recent_wrong_words %}
-        <ul>
-        {% for article in recent_wrong_words %}
-            <li>
-                <strong>{{ article.title }}</strong>
-                <span> - {{ article.content }}</span>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>暂无最近错误单词。</p>
-    {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Сохранить слово</button>
+        </form>
+    </div>
+
+    <!-- 右侧：最近错题 -->
+    <div class="card review-card">
+        <h2 class="section-title">⚠ Последние слова с ошибками</h2>
+        <p class="section-subtitle">
+            Эти слова стоит повторить в первую очередь.
+        </p>
+
+        {% if recent_wrong_words %}
+            <div class="wrong-word-list">
+                {% for article in recent_wrong_words %}
+                    <div class="wrong-word-item">
+                        <div class="wrong-word-top">
+                            <h3 class="word-title">{{ article.title }}</h3>
+                        </div>
+                        <p class="word-content">{{ article.content }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                Пока нет недавних ошибок 🎉
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
-
