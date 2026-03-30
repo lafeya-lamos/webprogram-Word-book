@@ -3,22 +3,34 @@
 {% block title %}Список слов{% endblock %}
 
 {% block content %}
-    <h1>所有单词</h1>
+<div class="card">
+    <h1 class="page-title">Список всех слов</h1>
+    <p class="page-subtitle">
+        Здесь отображаются все слова, которые были добавлены в словарь.
+    </p>
+
     {% if articles %}
-        <ul>
-        {% for article in articles %}
-            <li>
-                <h2>{{ article.title }}</h2>
-                <p>{{ article.content }}</p>
-                <small>添加日期：{{ article.pub_date }}</small>
-                <form method="post" action="{% url 'delete_article' article.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" onclick="return confirm('确定要删除“{{ article.title }}”吗？');">删除</button>
-                </form>
-            </li>
-        {% endfor %}
-        </ul>
+        <div class="word-grid">
+            {% for article in articles %}
+                <div class="word-card">
+                    <h2 class="word-title">{{ article.title }}</h2>
+                    <p class="word-content">{{ article.content }}</p>
+                    <p class="word-date">Дата добавления: {{ article.pub_date|date:"d.m.Y H:i" }}</p>
+
+                    <form method="post" action="{% url 'delete_article' article.id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Удалить слово «{{ article.title }}»?');">
+                            Удалить
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>暂无单词。</p>
+        <div class="empty-state">
+            В словаре пока нет слов.
+        </div>
     {% endif %}
+</div>
 {% endblock %}
