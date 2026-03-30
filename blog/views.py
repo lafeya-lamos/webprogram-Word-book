@@ -35,10 +35,17 @@ def add_article(request):
     })
 
 def article_list(request):
-    """从数据库获取所有文章，按发布时间倒序排列，然后渲染到模板"""
-    articles = Article.objects.all().order_by('-pub_date')  # 查询所有文章
+    query = request.GET.get('q', '').strip()
+    articles = Article.objects.all().order_by('-pub_date')
+
+    if query:
+        articles = articles.filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        )
+
     context = {
-        'articles': articles
+        'articles': articles,
+        'query': query,
     }
     return render(request, 'blog/article_list.html', context)
 
