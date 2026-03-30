@@ -690,3 +690,106 @@ textarea {
     transform: translateY(-1px);
     box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
 }
+
+/* ===== 首页 Hero 区域 ===== */
+.hero-section {
+    background: linear-gradient(135deg, #eff6ff, #f8fafc);
+    border: 1px solid #dbeafe;
+    border-radius: 28px;
+    padding: 42px 34px;
+    margin-bottom: 34px;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+    margin-bottom: 18px;
+    letter-spacing: -0.03em;
+}
+
+.hero-subtitle {
+    font-size: 1.08rem;
+    line-height: 1.9;
+    color: #475569;
+    max-width: 850px;
+    margin-bottom: 26px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* ===== 首页功能卡片 ===== */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+    margin-bottom: 34px;
+}
+
+.feature-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 26px 22px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+    transition: all 0.22s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.09);
+}
+
+.feature-title {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 14px;
+}
+
+.feature-text {
+    font-size: 1rem;
+    line-height: 1.85;
+    color: #475569;
+    margin: 0;
+}
+
+/* ===== 首页底部说明卡 ===== */
+.info-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 28px 26px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.feature-list {
+    margin: 18px 0 0;
+    padding-left: 22px;
+    color: #334155;
+    line-height: 2;
+    font-size: 1rem;
+}
+
+/* ===== 首页移动端适配 ===== */
+@media (max-width: 640px) {
+    .hero-section {
+        padding: 30px 22px;
+        border-radius: 22px;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+}
