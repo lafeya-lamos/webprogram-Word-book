@@ -793,3 +793,37 @@ textarea {
         line-height: 1.8;
     }
 }
+
+/* ===== 搜索框 ===== */
+.search-box {
+    margin: 20px 0 30px;
+}
+
+.search-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.search-result-text {
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #555;
+}
