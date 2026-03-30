@@ -1,48 +1,56 @@
-{{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Главная страница{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
-<div class="card hero-card">
-    <h1 class="hero-title">{{ welcome_title }}</h1>
-    <p class="hero-subtitle">
-        Это учебное веб-приложение помогает добавлять новые слова,
-        хранить их в словаре и проверять знания с помощью тестов.
-    </p>
-    <p class="hero-subtitle">
-        <strong>Сегодня:</strong> {{ current_datetime }}
-    </p>
-    <p class="hero-subtitle">
-        <strong>Последнее добавленное слово:</strong> {{ last_added_text }}
-    </p>
+<div class="hero-section">
+    <div class="hero-text">
+        <h1 class="hero-title">Система изучения слов</h1>
+        <p class="hero-subtitle">
+            Удобное веб-приложение для добавления, редактирования, хранения и тестирования слов.
+            Система помогает не только вести словарь, но и закреплять лексику через тесты и повторение ошибок.
+        </p>
 
-    <div class="btn-row">
-        <a class="btn-link" href="{% url 'quiz' %}?num_questions=5&mode=random">
-            <button class="btn btn-success">🎯 Быстрый тест</button>
-        </a>
-
-        <a class="btn-link" href="{% url 'quiz' %}?num_questions=5&mode=review">
-            <button class="btn btn-primary">🔁 Быстрое повторение</button>
-        </a>
-
-        <a class="btn-link" href="{% url 'add_article' %}">
-            <button class="btn btn-secondary">➕ Добавить новое слово</button>
-        </a>
+        <div class="hero-actions">
+            <a href="{% url 'add_article' %}" class="btn btn-primary btn-link-reset">Добавить слово</a>
+            <a href="{% url 'article_list' %}" class="btn btn-secondary btn-link-reset">Открыть словарь</a>
+            <a href="{% url 'quiz' %}" class="btn btn-success btn-link-reset">Начать тест</a>
+        </div>
     </div>
 </div>
 
-<div class="stats-row">
-    <div class="stat-box">
-        <div class="stat-label">Функция 1</div>
-        <div class="stat-value">Добавление слов</div>
+<div class="feature-grid">
+    <div class="feature-card">
+        <h2 class="feature-title">📘 Управление словарём</h2>
+        <p class="feature-text">
+            Добавляйте новые слова, просматривайте сохранённые записи, редактируйте значения и удаляйте ненужные элементы.
+        </p>
     </div>
-    <div class="stat-box">
-        <div class="stat-label">Функция 2</div>
-        <div class="stat-value">Автотестирование</div>
+
+    <div class="feature-card">
+        <h2 class="feature-title">📝 Интерактивный тест</h2>
+        <p class="feature-text">
+            Проверяйте знания с помощью тестов по словарю. Можно выбрать количество вопросов и пройти тренировку по разным режимам.
+        </p>
     </div>
-    <div class="stat-box">
-        <div class="stat-label">Функция 3</div>
-        <div class="stat-value">Режим повторения</div>
+
+    <div class="feature-card">
+        <h2 class="feature-title">❗ Работа над ошибками</h2>
+        <p class="feature-text">
+            Система автоматически сохраняет слова, в которых были ошибки, чтобы вы могли быстрее повторять проблемную лексику.
+        </p>
     </div>
+</div>
+
+<div class="info-card">
+    <h2 class="section-title">Что умеет текущая версия проекта</h2>
+    <ul class="feature-list">
+        <li>Добавление новых слов и значений</li>
+        <li>Редактирование существующих записей</li>
+        <li>Удаление слов с подтверждением</li>
+        <li>Просмотр словаря в виде карточек</li>
+        <li>Тестирование слов с выбором ответов</li>
+        <li>Сохранение и отображение недавних ошибок</li>
+    </ul>
 </div>
 {% endblock %}
