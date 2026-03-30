@@ -3,6 +3,29 @@
 {% block title %}Список слов{% endblock %}
 
 {% block content %}
+<div class="search-box">
+    <form method="get" class="search-form">
+        <input
+            type="text"
+            name="q"
+            placeholder="Поиск слов или значений..."
+            value="{{ query }}"
+            class="search-input"
+        >
+        <button type="submit" class="btn btn-primary">Поиск</button>
+
+        {% if query %}
+            <a href="{% url 'article_list' %}" class="btn btn-secondary btn-link-reset">Сбросить</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if query %}
+    <p class="search-result-text">
+        Результаты поиска по запросу: <strong>"{{ query }}"</strong>
+    </p>
+{% endif %}
+
 <div class="page-header">
     <h1 class="page-title">Словарь</h1>
     <p class="page-subtitle">
@@ -48,7 +71,11 @@
     </div>
 {% else %}
     <div class="empty-state">
-        Словарь пока пуст. Добавьте первое слово ✨
+        {% if query %}
+            По запросу "{{ query }}" ничего не найдено.
+        {% else %}
+            Словарь пока пуст. Добавьте первое слово ✨
+        {% endif %}
     </div>
 {% endif %}
 {% endblock %}
