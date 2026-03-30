@@ -1,39 +1,38 @@
 <!-- templates/base.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Cловник{% endblock %}</title>
-    <style>
-        nav {
-            background-color: #333;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        nav a {
-            color: white;
-            margin: 0 15px;
-            text-decoration: none;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        .container {
-            padding: 20px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Словник{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <nav>
-        <a href="{% url 'index' %}">Главная страница</a>
-        <a href="{% url 'article_list' %}">Список слов</a>
-        <a href="{% url 'add_article' %}">Добавить слово</a>
-        <a href="{% url 'quiz' %}">Тест</a>
-    </nav>
 
-    <div class="container">
+    <header class="site-header">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="{% url 'index' %}">📘 Словник</a>
+            </div>
+
+            <nav class="nav-links">
+                <a href="{% url 'index' %}">Главная</a>
+                <a href="{% url 'article_list' %}">Слова</a>
+                <a href="{% url 'add_article' %}">Добавить</a>
+                <a href="{% url 'quiz' %}">Тест</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
         {% block content %}
         {% endblock %}
-    </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>Учебный проект на Django • Vocabulary Trainer</p>
+    </footer>
+
 </body>
 </html>
