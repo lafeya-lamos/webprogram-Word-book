@@ -3,34 +3,52 @@
 {% block title %}Список слов{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="page-title">Список всех слов</h1>
+<div class="page-header">
+    <h1 class="page-title">Словарь</h1>
     <p class="page-subtitle">
-        Здесь отображаются все слова, которые были добавлены в словарь.
+        Здесь вы можете просматривать, редактировать и удалять сохранённые слова.
     </p>
+</div>
 
-    {% if articles %}
-        <div class="word-grid">
-            {% for article in articles %}
-                <div class="word-card">
-                    <h2 class="word-title">{{ article.title }}</h2>
-                    <p class="word-content">{{ article.content }}</p>
-                    <p class="word-date">Дата добавления: {{ article.pub_date|date:"d.m.Y H:i" }}</p>
+{% if articles %}
+    <div class="card-grid">
+        {% for article in articles %}
+            <div class="word-card">
+                <div class="word-card-header">
+                    <div>
+                        <h2 class="word-main">{{ article.title }}</h2>
+                    </div>
+                </div>
 
-                    <form method="post" action="{% url 'delete_article' article.id %}" class="inline-form">
+                <div class="word-meaning-block">
+                    <p class="meaning-label">Значение</p>
+                    <p class="word-meaning">{{ article.content }}</p>
+                </div>
+
+                <p class="card-date">
+                    Добавлено: {{ article.pub_date|date:"d.m.Y H:i" }}
+                </p>
+
+                <div class="card-actions">
+                    <a href="{% url 'edit_article' article.id %}" class="btn btn-secondary btn-link-reset">
+                        Редактировать
+                    </a>
+
+                    <form method="post"
+                          action="{% url 'delete_article' article.id %}"
+                          class="delete-form"
+                          novalidate
+                          onsubmit="return confirm('Вы уверены, что хотите удалить слово «{{ article.title|escapejs }}»?');">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger"
-                            onclick="return confirm('Удалить слово «{{ article.title }}»?');">
-                            Удалить
-                        </button>
+                        <button type="submit" class="btn btn-danger">Удалить</button>
                     </form>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="empty-state">
-            В словаре пока нет слов.
-        </div>
-    {% endif %}
-</div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        Словарь пока пуст. Добавьте первое слово ✨
+    </div>
+{% endif %}
 {% endblock %}
