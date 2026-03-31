@@ -1,9 +1,13 @@
+"""主页视图"""
+
 from django.shortcuts import render
 from django.utils import timezone
+
 from blog.models import Article
 
 
 def format_russian_datetime(dt):
+    """俄语日期显示"""
     weekdays = {
         0: 'понедельник',
         1: 'вторник',
@@ -29,14 +33,25 @@ def format_russian_datetime(dt):
         12: 'декабря',
     }
 
-    return f"{weekdays[dt.weekday()]}, {dt.day} {months[dt.month]} {dt.year} г., {dt.strftime('%H:%M')}"
+    return (
+        f"{weekdays[dt.weekday()]}, {dt.day} {months[dt.month]} {dt.year} г., "
+        f"{dt.strftime('%H:%M')}"
+    )
 
+
+def _pluralize_ru(number, forms):
+    """俄语复数"""
+    if number == 1:
+        return forms[0]
+    if 2 <= number <= 4:
+        return forms[1]
+    return forms[2]
 
 def format_time_ago_ru(dt):
+    """俄语多久前显示"""
     now = timezone.localtime()
     dt = timezone.localtime(dt)
     delta = now - dt
-
     seconds = int(delta.total_seconds())
 
     if seconds < 60:
@@ -44,32 +59,20 @@ def format_time_ago_ru(dt):
 
     minutes = seconds // 60
     if minutes < 60:
-        if minutes == 1:
-            return "1 минуту назад"
-        elif 2 <= minutes <= 4:
-            return f"{minutes} минуты назад"
-        else:
-            return f"{minutes} минут назад"
+        suffix = _pluralize_ru(minutes, ("минуту", "минуты", "минут"))
+        return f"{minutes} {suffix} назад"
 
     hours = minutes // 60
     if hours < 24:
-        if hours == 1:
-            return "1 час назад"
-        elif 2 <= hours <= 4:
-            return f"{hours} часа назад"
-        else:
-            return f"{hours} часов назад"
+        suffix = _pluralize_ru(hours, ("час", "часа", "часов"))
+        return f"{hours} {suffix} назад"
 
     days = hours // 24
-    if days == 1:
-        return "1 день назад"
-    elif 2 <= days <= 4:
-        return f"{days} дня назад"
-    else:
-        return f"{days} дней назад"
-
+    suffix = _pluralize_ru(days, ("день", "дня", "дней"))
+    return f"{days} {suffix} назад"
 
 def index(request):
+    """主页显示"""
     now = timezone.localtime()
     latest_article = Article.objects.order_by('-pub_date').first()
 
