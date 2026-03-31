@@ -1,10 +1,17 @@
-from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404 
-from .forms import ArticleForm
-from .models import Article, WrongWordRecord
+"""视图模块"""
+
 import random
 
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
+
+from .forms import ArticleForm
+from .models import Article, WrongWordRecord
+
+
 def add_article(request):
+    """添加新单词"""
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
@@ -35,6 +42,7 @@ def add_article(request):
     })
 
 def article_list(request):
+    """单词列表显示和按单词或释义搜索"""
     query = request.GET.get('q', '').strip()
     articles = Article.objects.all().order_by('-pub_date')
 
@@ -50,6 +58,7 @@ def article_list(request):
     return render(request, 'blog/article_list.html', context)
 
 def delete_article(request, article_id):
+    """删除单词"""
     article = get_object_or_404(Article, id=article_id)
     if request.method == 'POST':          # 只允许 POST 删除
         article.delete()
@@ -58,6 +67,7 @@ def delete_article(request, article_id):
     return redirect('article_list')
 
 def edit_article(request, article_id):
+    """编辑单词"""
     article = get_object_or_404(Article, id=article_id)
 
     if request.method == 'POST':
@@ -73,204 +83,214 @@ def edit_article(request, article_id):
         'article': article,
     })
 
+def _get_neighbor_wrong(word, all_words, current_index):
+    """获取邻近位置（±2）的错误选项，若无则兜底从其他单词中选一个。"""
+    candidates = [
+        all_words[j]
+        for j in range(max(0, current_index - 2), min(len(all_words), current_index + 3))
+        if j != current_index and all_words[j].content != word.content
+    ]
+    if candidates:
+        return random.choice(candidates)
+    # 兜底：任意一个不同的错误选项
+    fallback = [w for w in all_words if w.id != word.id and w.content != word.content]
+    if not fallback:
+        raise ValueError("Недостаточно слов для создания варианта ошибки.")
+    return random.choice(fallback)
+
+
+def _get_random_wrong(word, exclude_word, all_words):
+    """获取一个随机错误选项，排除当前单词和 exclude_word"""
+    candidates = [
+        w for w in all_words
+        if w.id != word.id and w.id != exclude_word.id and w.content != word.content
+    ]
+    if candidates:
+        return random.choice(candidates)
+    # 兜底：任意一个不同的错误选项（仅排除当前词）
+    backup = [w for w in all_words if w.id != word.id and w.content != word.content]
+    if not backup:
+        raise ValueError("Недостаточно слов для создания варианта ошибки.")
+    return random.choice(backup)
+
+def _build_options(word, correct_meaning, nearby_wrong, random_wrong, all_words):
+    """构建选项列表，去重并确保至少 3 个不同选项"""
+    options = [
+        {"text": correct_meaning, "is_correct": True},
+        {"text": nearby_wrong.content, "is_correct": False},
+        {"text": random_wrong.content, "is_correct": False},
+    ]
+
+    # 去重（基于文本）
+    unique_texts = set()
+    deduped = []
+    for opt in options:
+        if opt["text"] not in unique_texts:
+            deduped.append(opt)
+            unique_texts.add(opt["text"])
+
+    # 如果不足 3 个选项，补充额外的随机错误项
+    if len(deduped) < 3:
+        extra_candidates = [
+            w for w in all_words
+            if w.id != word.id and w.content not in unique_texts
+        ]
+        while len(deduped) < 3 and extra_candidates:
+            extra = random.choice(extra_candidates)
+            deduped.append({"text": extra.content, "is_correct": False})
+            unique_texts.add(extra.content)
+            extra_candidates = [
+                w for w in all_words
+                if w.id != word.id and w.content not in unique_texts
+            ]
+    # 如果补充后仍然不足3个，说明题库太小，抛出错误
+    if len(deduped) < 3:
+        raise ValueError(f"Недостаточно уникальных вариантов ответа для слова '{word.title}'.")
+
+    random.shuffle(deduped)
+    return deduped
 
 def generate_quiz_questions(num_questions=5, mode='random'):
-    """
-    生成 5 道测试题
-    规则：
-    - 题干：单词 title
-    - 选项：释义 content
-    - 每题 3 个选项：
-        1) 正确释义
-        2) 相邻录入（±2）范围内的一个错误释义
-        3) 其他随机错误释义
-    - 词库只要 >= num_questions 就能生成
-    - 词库 < num_questions 才报错
-    """
-
-    # 按录入顺序排序（最早录入在前）
+    """生成测试题"""
     all_words = list(Article.objects.all().order_by('pub_date', 'id'))
 
+    if len(all_words) < 5:
+        return None, (
+            f"Количество слов слишком мало(только {len(all_words)}), "
+            f"генерация задания, скорее всего, не удастся, добавьте больше слов!."
+        )
     if len(all_words) < num_questions:
-        return None, f"Недостаточно слов в словаре. Для теста нужно минимум {num_questions} слов, сейчас доступно только {len(all_words)}."
+        return None, (
+            f"Недостаточно слов в словаре. Для теста нужно минимум "
+            f"{num_questions} слов, сейчас доступно только {len(all_words)}."
+        )
 
     # 根据模式选择单词
     if mode == 'random':
         selected_words = random.sample(all_words, num_questions)
     elif mode == 'review':
-        # 取最后 num_questions 个（即最近录入的）
         selected_words = all_words[-num_questions:]
     else:
-        selected_words = random.sample(all_words, num_questions)  # 默认随机
+        selected_words = random.sample(all_words, num_questions)
 
     questions = []
+    for idx, word in enumerate(selected_words, start=1):
+        try:
+            current_index = all_words.index(word)
+            correct_meaning = word.content
 
-    for q_index, word in enumerate(selected_words, start=1):
-        current_index = all_words.index(word)
-        correct_meaning = word.content
-
-        # -------------------------
-        # 1) 邻近错误选项（±2）
-        # -------------------------
-        neighbor_candidates = [
-            all_words[j]
-            for j in range(max(0, current_index - 2), min(len(all_words), current_index + 3))
-            if j != current_index and all_words[j].content != correct_meaning
-        ]
-
-        # 如果 ±2 范围内刚好没有可用错误项（极端兜底）
-        if neighbor_candidates:
-            nearby_wrong = random.choice(neighbor_candidates)
-        else:
-            # 兜底：从其他单词中补一个
-            fallback_candidates = [
-                w for w in all_words
-                if w.id != word.id and w.content != correct_meaning
-            ]
-            nearby_wrong = random.choice(fallback_candidates)
-
-        # -------------------------
-        # 2) 其他随机错误选项
-        # -------------------------
-        random_wrong_candidates = [
-            w for w in all_words
-            if w.id != word.id
-            and w.id != nearby_wrong.id
-            and w.content != correct_meaning
-        ]
-
-        # 极端兜底（理论上 5 个词时不会缺）
-        if random_wrong_candidates:
-            random_wrong = random.choice(random_wrong_candidates)
-        else:
-            backup_candidates = [
-                w for w in all_words
-                if w.id != word.id and w.content != correct_meaning
-            ]
-            random_wrong = random.choice(backup_candidates)
-
-        options = [
-            {"text": correct_meaning, "is_correct": True},
-            {"text": nearby_wrong.content, "is_correct": False},
-            {"text": random_wrong.content, "is_correct": False},
-        ]
-
-        # 防止极端情况下两个错误选项文字重复（比如释义内容完全一样）
-        unique_texts = set()
-        deduped_options = []
-        for opt in options:
-            if opt["text"] not in unique_texts:
-                deduped_options.append(opt)
-                unique_texts.add(opt["text"])
-
-        # 如果去重后不足 3 个选项，则继续补随机错误项
-        if len(deduped_options) < 3:
-            extra_candidates = [
-                w for w in all_words
-                if w.id != word.id and w.content not in unique_texts
-            ]
-            while len(deduped_options) < 3 and extra_candidates:
-                extra = random.choice(extra_candidates)
-                deduped_options.append({"text": extra.content, "is_correct": False})
-                unique_texts.add(extra.content)
-                extra_candidates = [
-                    w for w in all_words
-                    if w.id != word.id and w.content not in unique_texts
-                ]
-
-        random.shuffle(deduped_options)
+            nearby_wrong = _get_neighbor_wrong(word, all_words, current_index)
+            random_wrong = _get_random_wrong(word, nearby_wrong, all_words)
+            options = _build_options(word, correct_meaning, nearby_wrong, random_wrong, all_words)
+        except ValueError as e:
+            # 捕获底层抛出的错误
+            return None, str(e)
 
         questions.append({
-            "question_no": q_index,
+            "question_no": idx,
             "word": word.title,
-            "options": deduped_options,
+            "options": options,
             "correct_answer": correct_meaning,
         })
 
     return questions, None
 
-
-def quiz_view(request):
-    if request.method == 'POST':
-        total = request.POST.get('total_questions')
-        try:
-            total = int(total)
-            if total < 1 or total > 20:
-                return redirect('quiz')
-        except (TypeError, ValueError):
+def _process_quiz_submission(request):
+    """处理测试POST请求，返回HTTP响应"""
+    total = request.POST.get('total_questions')
+    try:
+        total = int(total)
+        if total < 1 or total > 20:
             return redirect('quiz')
+    except (TypeError, ValueError):
+        return redirect('quiz')
 
-        questions = []
-        score = 0
+    questions = []
+    score = 0
 
-        for i in range(1, total + 1):
-            word = request.POST.get(f'word_{i}')
-            correct_answer = request.POST.get(f'correct_{i}')
-            selected_answer = request.POST.get(f'question_{i}')
+    for i in range(1, total + 1):
+        word = request.POST.get(f'word_{i}')
+        correct_answer = request.POST.get(f'correct_{i}')
+        selected_answer = request.POST.get(f'question_{i}')
 
-            is_correct = (selected_answer == correct_answer) if selected_answer else False
-            if is_correct:
-                score += 1
-            else:
-                 # 记录错题（包括未作答）
-                wrong_article = Article.objects.filter(title=word).first()
-                if wrong_article:
-                    WrongWordRecord.objects.create(word=wrong_article)
+        is_correct = (selected_answer == correct_answer) if selected_answer else False
+        if is_correct:
+            score += 1
+        else:
+            wrong_article = Article.objects.filter(title=word).first()
+            if wrong_article:
+                WrongWordRecord.objects.create(word=wrong_article)
 
-            questions.append({
-                "question_no": i,
-                "word": word,
-                "selected_answer": selected_answer,
-                "correct_answer": correct_answer,
-                "is_correct": is_correct,
-                "answered": selected_answer is not None
-            })
+        questions.append({
+            "question_no": i,
+            "word": word,
+            "selected_answer": selected_answer,
+            "correct_answer": correct_answer,
+            "is_correct": is_correct,
+            "answered": selected_answer is not None
+        })
 
-        return render(request, 'blog/quiz.html', {
+    return render(
+        request,
+        'blog/quiz.html',
+        {
             'submitted': True,
             'questions': questions,
             'score': score,
             'total': total,
-        })
+        }
+    )
 
-    # GET 请求
-    num_questions_str = request.GET.get('num_questions')
-    mode = request.GET.get('mode', 'random')  # 默认为随机模式
 
-    # 首次进入页面，没有 num_questions 参数，只显示数量选择表单，不生成题目
-    if num_questions_str is None:
-        return render(request, 'blog/quiz.html', {
-            'submitted': False,
-            'questions': None,   # 没有题目
-            'num_questions': 5,  # 默认值用于表单显示
-            'mode': mode,  # 传递当前模式
-        })
-
-    # 验证数量
-    input_error = None
-    num_questions = None
-    questions = None
-
+def _prepare_quiz_questions(num_questions, mode):
+    """测试题数量限制及报错"""
     try:
-        num_questions = int(num_questions_str)
+        num_questions = int(num_questions)
         if num_questions < 1 or num_questions > 20:
-            input_error = "Количество вопросов должно быть целым числом от 1 до 20."
-        else:
-            questions, error = generate_quiz_questions(num_questions, mode)
-            if error:
-                input_error = error
-                questions = None
+            return None, "Количество вопросов должно быть целым числом от 1 до 20.", num_questions
+        questions, error = generate_quiz_questions(num_questions, mode)
+        if error:
+            return None, error, num_questions
+        return questions, None, num_questions
     except ValueError:
-        input_error = "Количество вопросов должно быть числом."
-
-    return render(request, 'blog/quiz.html', {
-        'submitted': False,
-        'questions': questions,
-        'error': input_error,
-        'num_questions': num_questions if num_questions is not None else 5,
-        'mode': mode,  # 保留模式，用于错误后或生成后显示
-    })
+        return None, "Количество вопросов должно быть целым числом.", None
 
 
-# Create your views here.
+def quiz_view(request):
+    """按输入数量及模式生成测试"""
+    if request.method == 'POST':
+        return _process_quiz_submission(request)
+
+    # GET请求
+    num_questions_str = request.GET.get('num_questions')
+    mode = request.GET.get('mode', 'random')
+
+    # 初次进入页面
+    if num_questions_str is None:
+        return render(
+            request,
+            'blog/quiz.html',
+            {
+                'submitted': False,
+                'questions': None,
+                'num_questions': 5,
+                'mode': mode,
+            }
+        )
+
+    # 按要求生成测试
+    questions, error, validated_num = _prepare_quiz_questions(num_questions_str, mode)
+    return render(
+        request,
+        'blog/quiz.html',
+        {
+            'submitted': False,
+            'questions': questions,
+            'error': error,
+            'num_questions': validated_num if validated_num is not None else 5,
+            'mode': mode,
+        }
+    )
+
+
 
