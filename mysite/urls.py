@@ -1,7 +1,10 @@
+"""路径配置"""
+
 from django.contrib import admin
 from django.urls import path
+
 from blog import views
-from mysite import views as mysite_views 
+from mysite import views as mysite_views
 
 urlpatterns = [
     path('', mysite_views.index, name='index'),
@@ -12,3 +15,4 @@ urlpatterns = [
     path('quiz/', views.quiz_view, name='quiz'),
     path('edit/<int:article_id>/', views.edit_article, name='edit_article'),
 ]
+
