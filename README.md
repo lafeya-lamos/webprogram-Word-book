@@ -73,6 +73,7 @@ pip  install -r requirements.txt
 ### 3.数据库迁移 / Миграции базы данных
 
 python manage.py makemigrations blog
+
 python manage.py migrate
 
 ### 4.启动项目 / Запустить проект
